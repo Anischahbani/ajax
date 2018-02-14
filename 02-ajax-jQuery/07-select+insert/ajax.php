@@ -1,17 +1,35 @@
-
-
 <?php
 
 require_once('init.php');
 extract($_POST);
-// je sais que j'ai une entrée 'personne' => 'Laura'
-// avec l'extract j'obtiens $personne = 'Laura';
+
+/*
+en mode insertion
+mode = envoi
+personne = 'un prenom'
+*/
+
+if(isset($mode)&& $mode == 'envoi'){
+
+    $result = $pdo->prepare("INSERT INTO employes (prenom) VALUES (:personne)");
+        if ( $result->execute(array('personne' => $personne))){
+
+
+    $tab['validation']= 'ok';
+
+    echo json_encode($tab); // { 'validation' :'ok'}
+
+    
+}
+
+}
+else{
 
 $tab = array();
 $tab['resultat'] = '';
 
-$result=$pdo->prepare("SELECT * FROM employes WHERE prenom=:prenom");
-$result->execute(array('prenom' => $personne));
+$result=$pdo->prepare("SELECT * FROM employes ORDER BY nom");
+$result->execute();
 
 $tab['resultat'] .= '<table border="5"><tr>';
 $nbcolonnes = $result->columnCount(); 
@@ -31,6 +49,9 @@ while ($ligne = $result->fetch(PDO::FETCH_ASSOC))
         $tab['resultat'] .="</tr>";
 }
 $tab['resultat'] .= "</table>";
+$tab['validation'] = 'ok';
+}
+
 
 echo json_encode($tab);
 

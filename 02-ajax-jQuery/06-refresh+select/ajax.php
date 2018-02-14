@@ -1,5 +1,3 @@
-
-
 <?php
 
 require_once('init.php');
@@ -10,8 +8,8 @@ extract($_POST);
 $tab = array();
 $tab['resultat'] = '';
 
-$result=$pdo->prepare("SELECT * FROM employes WHERE prenom=:prenom");
-$result->execute(array('prenom' => $personne));
+$result=$pdo->prepare("SELECT * FROM employes ORDER BY nom");
+$result->execute();
 
 $tab['resultat'] .= '<table border="5"><tr>';
 $nbcolonnes = $result->columnCount(); 
@@ -31,6 +29,7 @@ while ($ligne = $result->fetch(PDO::FETCH_ASSOC))
         $tab['resultat'] .="</tr>";
 }
 $tab['resultat'] .= "</table>";
+$tab['validation'] = 'ok';
 
 echo json_encode($tab);
 

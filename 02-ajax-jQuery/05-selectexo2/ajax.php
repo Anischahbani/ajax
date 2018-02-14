@@ -1,5 +1,3 @@
-
-
 <?php
 
 require_once('init.php');
@@ -31,6 +29,7 @@ while ($ligne = $result->fetch(PDO::FETCH_ASSOC))
         $tab['resultat'] .="</tr>";
 }
 $tab['resultat'] .= "</table>";
+$tab['validation'] = 'ok';
 
 echo json_encode($tab);
 
