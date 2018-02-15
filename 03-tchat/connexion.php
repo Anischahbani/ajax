@@ -1,33 +1,51 @@
 <?php
 
-require_once('inc/init.php');0
+require_once('inc/init.php');
 
-//Traitement du Formulaire en post
-if (isset($_POST['connexion'])){ // si on clique sur connexion
+//traitement du formulaire en post
+if ( isset($_POST['connexion']) ) // si on clique sur connexion
 
+{
     $resultat = $pdo->prepare("SELECT * FROM membre WHERE pseudo = :pseudo");
-    $resultat->execute( array('pseudo' => $_POST['pseudo']));
+    $resultat->execute(array('pseudo' => $_POST['pseudo']) );
     $membre = $resultat->fetch(PDO::FETCH_ASSOC);
 
-    if( $resultat->rowCount() == 0 ){
-        //insertion en base d'un nouveau membre
+    if ( $resultat->rowCount() == 0 )
+
+    {
+        // insertion en base d'un nouveau membre
+        $result=$pdo->prepare("INSERT INTO membre VALUES(NULL,:pseudo,:civilite,:ville,:date_de_naissance,:ip,".time().")");
+        $result->execute(array("pseudo" => $_POST['pseudo'],
+                               "civilite" => $_POST['civilite'],
+                               "ville" => $_POST['ville'],
+                               "date_de_naissance" => $_POST['date_de_naissance'],
+                               "ip" => gethostbyname($_SERVER['SERVER_NAME']), ));
+        $id_membre=$pdo->lastInsertId();
     }
-
-    elseif( $resultat->rowCount()>0 && $membre['id'] == $_SERVER['REMOTE_ADDR']){
-
-        //Le pseudo est connu et l'internaute est proprietaire du pseudo (meme IP) 
+    elseif( $resultat->rowCount()>0 && $membre['ip'] == gethostbyname($_SERVER['SERVER_NAME']) )
+    {
+        /* Le pseudo est connu et l'internaut est proprietaire du pseudo (meme IP) */
         // On met à jour la date de connexion
-    }
-    else{
-        $msg .='<div class="erreur">Ce pseudo est déja réservé </div>' ;   
-    }
-
-    if(empty($msg)){
-
-        //remplir $_SESSION et rediriger vers index.php
+        $result = $pdo->prepare("UPDATE membre SET date_connexion=".time()."WHERE id_membre=:id_membre");
+        $result->execute(array('id_membre' => $membre['id_membre']));
+        $id_membre=$membre['id_membre'];
     }
 
+else
+{
+    $msg .= '<div class="erreur">Ce pseudo est déjà reservé</div>';
 }
+    if(empty($msg))
+    {
+        // remplir $_SESSION et rediriger vers index.php
+        $_SESSION['id_membre'] = $id_membre;
+        $_SESSION['pseudo'] = $_POST['pseudo'];
+        header('location:index.php');
+        exit();
+
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -64,7 +82,7 @@ if (isset($_POST['connexion'])){ // si on clique sur connexion
             <input type="text" name="date_de_naissance" id="date_de_naissance" class="form-control" value=""><br>
             </div>
             <div class="form-group">
-            <button type="submit" class ='btn btn-success btn-block' style="margin-top: 25px;">Connexion au Tchat</button>
+            <button type="submit" class ='btn btn-success btn-block' style="margin-top: 25px;" name="connexion" id="submit">Connexion au Tchat</button>
             </div>
         </form>
     </div>

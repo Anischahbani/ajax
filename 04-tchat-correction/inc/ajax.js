@@ -77,7 +77,7 @@ $(document).ready(function(){
                 $('#message').val('');
                 $('#message').focus();
             }else{
-                alert("probleme");
+                alert("pb");
             }
             timer = setInterval(affichage_message,5000);
             hideLoader();
